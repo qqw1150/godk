@@ -1,6 +1,12 @@
 package str
 
 import (
+	"crypto/md5"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -110,4 +116,70 @@ func UcwordsForDelimiters(str, delimiters string) string {
 	}
 
 	return string(runes)
+}
+
+//
+//  Md5 计算字符串的 MD5 散列值
+//  @Description: 使用 » RSA 数据安全公司的 MD5 消息摘要算法 计算 string 的 MD5 散列值，并返回该散列值。
+//  @param str 要计算的字符串。
+//  @return string 以 32 字符的十六进制数形式返回散列值。
+//
+func Md5(str string) string {
+	hash := md5.New()
+	io.WriteString(hash, str)
+	return fmt.Sprintf("%x", hash.Sum(nil))
+}
+
+//
+//  Md5File 计算指定文件的 MD5 散列值
+//  @Description: 使用 » RSA 数据安全公司的 MD5 消息摘要算法 计算 filename 参数指定的文件的 MD5 散列值，并返回该散列值。该散列值是 32 字符的十六进制数。
+//  @param filename 文件名
+//  @return string 成功返回字符串，否则返回 空字符串。
+//
+func Md5File(filename string) string {
+	file, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return ""
+	}
+	sum := md5.Sum(file)
+	return fmt.Sprintf("%x", sum)
+}
+
+//
+//  Nl2br 在字符串所有新行之前插入 HTML 换行标记
+//  @Description: 在字符串 string 所有新行之前插入 '<br />'，并返回。
+//  @param str 输入字符串。
+//  @return string 返回调整后的字符串。
+//
+func Nl2br(str string) string {
+	p, _ := regexp.Compile("\r\n|\n")
+	all := p.ReplaceAll([]byte(str), []byte("<br/>"))
+	return string(all)
+}
+
+//
+//  NumberFormat 以千位分隔符方式格式化一个数字
+//  @Description: 以千位分隔符方式格式化一个数字
+//  @param number 你要格式化的数字
+//  @param decimals 要保留的小数位数
+//  @param decPoint 指定小数点显示的字符
+//  @param thousandsSep 指定千位分隔符显示的字符
+//  @return string 格式化以后的 number.
+//
+//	example:
+//	s:=str.NumberFormat(67657567123456.456,2,".",",")
+//	fmt.Println(s)
+//	676,575,671,234,56.45
+//
+func NumberFormat(number float64, decimals int, decPoint, thousandsSep string) string {
+	s := strconv.FormatFloat(number, 'f', decimals, 64)
+	arr := strings.Split(s, ".")
+	pre := ""
+	for k, v := range strings.Split(arr[0], "") {
+		if k != 0 && k%3 == 0 {
+			pre += thousandsSep
+		}
+		pre += v
+	}
+	return pre + decPoint + arr[1]
 }
