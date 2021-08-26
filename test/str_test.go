@@ -32,3 +32,11 @@ func TestNl2br(t *testing.T) {
 func TestNumberFormat(t *testing.T) {
 	t.Log(str.NumberFormat(67657567123456.456, 2, ".", ","))
 }
+
+func TestParseStr(t *testing.T) {
+	t.Log(str.ParseStr("first=value&arr[]=foo+bar&arr[]=baz"))
+}
+
+func TestStrStr(t *testing.T) {
+	t.Log(str.StrStr("name@example.com", "@", true))
+}

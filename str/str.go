@@ -183,3 +183,62 @@ func NumberFormat(number float64, decimals int, decPoint, thousandsSep string) s
 	}
 	return pre + decPoint + arr[1]
 }
+
+//
+//  ParseStr 将字符串解析成多个变量
+//  @Description: 如果 string 是 URL 传递入的查询字符串（query string），则将它解析为变量
+//  @param str 输入的字符串。
+//  @return map[string]interface{} 解析后的变量 （interface类型：string、[]string）
+//
+//	example:
+//	str.ParseStr("first=value&arr[]=foo+bar&arr[]=baz")
+//	map[arr:[foo+bar baz] first:value]
+//
+func ParseStr(str string) map[string]interface{} {
+	res := make(map[string]interface{})
+	split := strings.Split(str, "&")
+	for _, v := range split {
+		ps := strings.Split(v, "=")
+		if strings.HasSuffix(ps[0], "[]") {
+
+			kk := Substr(ps[0], 0, len(ps[0])-2)
+			if res[kk] == nil {
+				res[kk] = make([]string, 0)
+			}
+			tmp := res[kk].([]string)
+			tmp = append(tmp, ps[1])
+			res[kk] = tmp
+		} else {
+			res[ps[0]] = ps[1]
+		}
+	}
+
+	return res
+}
+
+//
+//  StrStr 查找字符串的首次出现
+//  @Description: 返回 haystack 字符串从 needle 第一次出现的位置开始到 haystack 结尾的字符串。
+//  @param haystack 输入字符串。
+//  @param needle 查找的字符串
+//  @param after 若为 true 返回needle后面的字符串，为false返回needle前面的字符串
+//  @return string 返回字符串的一部分或者空字符串
+//
+//	example:
+//	s:=str.StrStr("name@example.com","@",false)
+//	fmt.Println(s) //name
+//	s:=str.StrStr("name@example.com","@",true)
+//	fmt.Println(s) //@example.com
+//
+func StrStr(haystack, needle string, after bool) string {
+	index := strings.Index(haystack, needle)
+	if index == -1 {
+		return ""
+	}
+
+	if after {
+		return Substr(haystack, index, len(haystack)-index)
+	} else {
+		return Substr(haystack, 0, index)
+	}
+}
